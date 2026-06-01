@@ -23,30 +23,28 @@ export async function GET(request: Request) {
     }
 
     const students = await prisma.student.findMany({
-      where: whereClause,
+  where: classId ? { classId } : undefined,
+  include: {
+    user: {
+      select: {
+        id: true,
+        name: true,
+        email: true
+      }
+    },
+    class: true,
+    parent: {  // ADD THIS
       include: {
         user: {
           select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
-        class: true,
-        parent: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true
-              }
-            }
+            name: true
           }
         }
-      },
-      orderBy: { rollNumber: 'asc' }
-    })
-
+      }
+    }
+  },
+  orderBy: { createdAt: 'desc' }
+})
     return NextResponse.json(students)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch students' }, { status: 500 })

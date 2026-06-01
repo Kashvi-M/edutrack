@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { name, email, password, phone } = body
+    const { name, email, password, phone, studentIds } = body
 
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -68,12 +68,26 @@ export async function POST(request: Request) {
         role: 'PARENT',
         parent: {
           create: {
-            phone: phone || null
+            phone: phone || null,
+            ...(studentIds && studentIds.length > 0 ? {
+              students: {
+                connect: studentIds.map((id: string) => ({ id }))
+              }
+            } : {})
           }
         }
       },
       include: {
-        parent: true
+        parent: {
+          include: {
+            students: {
+              include: {
+                user: true,
+                class: true
+              }
+            }
+          }
+        }
       }
     })
 

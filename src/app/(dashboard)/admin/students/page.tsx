@@ -1,16 +1,17 @@
 'use client'
-import DashboardLayout from '@/components/layout/DashboardLayout'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { toast } from 'react-hot-toast'
+import DashboardLayout from '@/components/layout/DashboardLayout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import TableSkeleton from '@/components/ui/TableSkeleton'
-
-type Class = {
-  id: string
-  name: string
-  section: string
-}
+import toast from 'react-hot-toast'
 
 type Student = {
   id: string
@@ -20,7 +21,22 @@ type Student = {
     name: string
     email: string
   }
-  class: Class | null
+  class: {
+    id: string
+    name: string
+    section: string
+  } | null
+  parent: {
+    user: {
+      name: string
+    }
+  } | null
+}
+
+type Class = {
+  id: string
+  name: string
+  section: string
 }
 
 export default function StudentsPage() {
@@ -28,9 +44,10 @@ export default function StudentsPage() {
   const [classes, setClasses] = useState<Class[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null)
   const [error, setError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,14 +65,14 @@ export default function StudentsPage() {
     try {
       const res = await fetch('/api/students')
       const data = await res.json()
-      //Check if data is an array
+      
       if (Array.isArray(data)) {
         setStudents(data)
-    } else {
-      console.error('Invalid data format:', data)
-      setStudents([])
-    }
-   } catch (error) {
+      } else {
+        console.error('Students API error:', data)
+        setStudents([])
+      }
+    } catch (error) {
       console.error('Error fetching students:', error)
       setStudents([])
     } finally {
@@ -67,7 +84,10 @@ export default function StudentsPage() {
     try {
       const res = await fetch('/api/classes')
       const data = await res.json()
-      setClasses(data)
+      
+      if (Array.isArray(data)) {
+        setClasses(data)
+      }
     } catch (error) {
       console.error('Error fetching classes:', error)
     }
@@ -100,192 +120,282 @@ export default function StudentsPage() {
     }
   }
 
+  const handleEdit = (student: Student) => {
+    setEditingStudent(student)
+    setFormData({
+      name: student.user.name,
+      email: student.user.email,
+      password: '', // Don't pre-fill password
+      rollNumber: student.rollNumber,
+      classId: student.class?.id || ''
+    })
+    setShowForm(true)
+  }
+
+  const handleUpdate = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    if (!editingStudent) return
+
+    try {
+      const res = await fetch(`/api/students/${editingStudent.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      if (res.ok) {
+        setFormData({ name: '', email: '', password: '', rollNumber: '', classId: '' })
+        setShowForm(false)
+        setEditingStudent(null)
+        fetchStudents()
+        toast.success('Student updated successfully!')
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Failed to update student')
+      }
+    } catch (error) {
+      console.error('Error updating student:', error)
+      toast.error('Error updating student')
+    }
+  }
+
+  const filteredStudents = students.filter(student =>
+    student.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.rollNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    student.class?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   if (loading) {
     return (
-    <DashboardLayout requiredRole="ADMIN">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-2 animate-pulse"></div>
-          <div className="h-4 bg-gray-100 rounded w-1/3 animate-pulse"></div>
+      <DashboardLayout requiredRole="ADMIN">
+        <div className="container mx-auto p-6">
+          <TableSkeleton rows={5} columns={5} />
         </div>
-        <TableSkeleton rows={5} columns={5} />
-      </div>
-    </DashboardLayout>
-  )
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout requiredRole="ADMIN">
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Students</h1>
-            <p className="mt-1 text-gray-600">Add and view all students</p>
+            <h1 className="text-3xl font-bold tracking-tight">Manage Students</h1>
+            <p className="text-base text-muted-foreground mt-1">Add and manage student accounts</p>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          <Button 
+            onClick={() => {
+              setShowForm(!showForm)
+              setEditingStudent(null)
+              setFormData({ name: '', email: '', password: '', rollNumber: '', classId: '' })
+            }} 
+            size="lg" 
+            className="text-base"
           >
-            {showForm ? 'Cancel' : '+ Add Student'}
-          </button>
+            {showForm ? '✕ Cancel' : '+ Add Student'}
+          </Button>
         </div>
-        {/* Create Form */}
+
+        {/* Search Bar */}
+        <Card>
+          <CardContent className="pt-6">
+            <Input
+              placeholder="Search by name, email, roll number, or class..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 text-base"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Create/Edit Form */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create New Student</h2>
-            
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Jane Smith"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">
+                {editingStudent ? 'Edit Student' : 'Add New Student'}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {editingStudent ? 'Update student information' : 'Fill in student details'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-base">
+                  {error}
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="student@edutrack.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="Min. 6 characters"
-                    minLength={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Roll Number
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.rollNumber}
-                    onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
-                    placeholder="e.g., 2024001"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Class (Optional)
-                  </label>
-                  <select
-                    value={formData.classId}
-                    onChange={(e) => setFormData({ ...formData, classId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select a class</option>
-                    {classes.map((cls) => (
-                      <option key={cls.id} value={cls.id}>
-                        {cls.name} - {cls.section}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              )}
               
-              <button
-                type="submit"
-                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Create Student
-              </button>
-            </form>
-          </div>
+              <form onSubmit={editingStudent ? handleUpdate : handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-base">Full Name</Label>
+                    <Input
+                      id="name"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g., Jane Doe"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-base">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="student@school.com"
+                      className="h-11 text-base"
+                      disabled={!!editingStudent}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-base">
+                      Password {editingStudent && '(leave blank to keep current)'}
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      required={!editingStudent}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder="Min. 6 characters"
+                      minLength={6}
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="rollNumber" className="text-base">Roll Number</Label>
+                    <Input
+                      id="rollNumber"
+                      required
+                      value={formData.rollNumber}
+                      onChange={(e) => setFormData({ ...formData, rollNumber: e.target.value })}
+                      placeholder="e.g., 2024001"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="class" className="text-base">Class</Label>
+                    <Select
+                      value={formData.classId}
+                      onValueChange={(value) => setFormData({ ...formData, classId: value })}
+                    >
+                      <SelectTrigger className="h-11 text-base">
+                        <SelectValue placeholder="Select a class" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map((cls) => (
+                          <SelectItem key={cls.id} value={cls.id} className="text-base">
+                            {cls.name} - {cls.section}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button type="submit" size="lg" className="text-base">
+                    {editingStudent ? 'Update Student' : 'Create Student'}
+                  </Button>
+                  {editingStudent && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={() => {
+                        setEditingStudent(null)
+                        setShowForm(false)
+                        setFormData({ name: '', email: '', password: '', rollNumber: '', classId: '' })
+                      }}
+                      className="text-base"
+                    >
+                      Cancel Edit
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
 
-        {/* Students List */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Roll Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Class
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {students.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    No students found. Create your first student!
-                  </td>
-                </tr>
-              ) : (
-                students.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {student.rollNumber}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.user.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {student.class ? `${student.class.name} - ${student.class.section}` : 'Not assigned'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button className="text-blue-600 hover:text-blue-800">
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Students Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">All Students ({filteredStudents.length})</CardTitle>
+            <CardDescription className="text-base">Manage student records</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-base">Roll Number</TableHead>
+                  <TableHead className="text-base">Name</TableHead>
+                  <TableHead className="text-base">Email</TableHead>
+                  <TableHead className="text-base">Class</TableHead>
+                  <TableHead className="text-base">Parent</TableHead>
+                  <TableHead className="text-base">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8">
+                      <p className="text-lg text-muted-foreground">
+                        {searchQuery ? 'No students found matching your search' : 'No students yet. Create your first student!'}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium text-base">{student.rollNumber}</TableCell>
+                      <TableCell className="text-base">{student.user.name}</TableCell>
+                      <TableCell className="text-base">{student.user.email}</TableCell>
+                      <TableCell className="text-base">
+                        {student.class ? (
+                          <Badge variant="secondary" className="text-sm">
+                            {student.class.name} - {student.class.section}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">Not assigned</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-base">
+                        {student.parent ? (
+                          <span className="text-sm">{student.parent.user.name}</span>
+                        ) : (
+                          <Badge variant="outline" className="text-sm">No parent linked</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(student)}
+                          className="text-sm"
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </div>
     </DashboardLayout>
   )
 }

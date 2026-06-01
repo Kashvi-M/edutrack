@@ -1,11 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import GradeChart from '@/components/charts/GradeChart'
 import AttendanceCalendar from '@/components/charts/AttendanceCalendar'
-import DashboardLayout from '@/components/layout/DashboardLayout'
 import toast from 'react-hot-toast'
-import CardSkeleton from '@/components/ui/CardSkeleton'
 
 type Assignment = {
   id: string
@@ -51,7 +55,6 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState('')
   const [submitting, setSubmitting] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'assignments' | 'attendance'>('assignments')
 
   useEffect(() => {
     fetchUserName()
@@ -90,32 +93,32 @@ export default function StudentDashboard() {
   }
 
   const handleSubmit = async (assignmentId: string) => {
-  const confirmed = window.confirm('Submit this assignment? You cannot undo this action.')
-  if (!confirmed) return
+    const confirmed = window.confirm('Submit this assignment? You cannot undo this action.')
+    if (!confirmed) return
 
-  setSubmitting(assignmentId)
+    setSubmitting(assignmentId)
 
-  try {
-    const res = await fetch('/api/submissions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assignmentId })
-    })
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignmentId })
+      })
 
-    if (res.ok) {
-      toast.success('Assignment submitted successfully! ✅')
-      fetchAssignments()
-    } else {
-      const data = await res.json()
-      toast.error(data.error || 'Failed to submit assignment')
+      if (res.ok) {
+        toast.success('Assignment submitted successfully! ✅')
+        fetchAssignments()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Failed to submit assignment')
+      }
+    } catch (error) {
+      console.error('Error submitting assignment:', error)
+      toast.error('Error submitting assignment')
+    } finally {
+      setSubmitting(null)
     }
-  } catch (error) {
-    console.error('Error submitting assignment:', error)
-    toast.error('Error submitting assignment')
-  } finally {
-    setSubmitting(null)
   }
-}
 
   const isOverdue = (dueDate: string) => {
     return new Date(dueDate) < new Date()
@@ -127,346 +130,352 @@ export default function StudentDashboard() {
       : null
   }
 
-  // Calculate attendance stats
   const totalDays = attendance.length
   const presentDays = attendance.filter(a => a.status === 'PRESENT').length
-  const absentDays = attendance.filter(a => a.status === 'ABSENT').length
   const attendancePercentage = totalDays > 0 ? ((presentDays / totalDays) * 100).toFixed(1) : '0'
-
-  // Get recent attendance (last 30 days)
-  const recentAttendance = attendance.slice(0, 30)
-
-  if (loading) {
-    return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="h-8 bg-gray-200 rounded w-1/4 animate-pulse"></div>
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <CardSkeleton count={3} />
-        <div className="mt-8 space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white rounded-lg shadow p-6">
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-3 animate-pulse"></div>
-              <div className="h-4 bg-gray-100 rounded w-2/3 mb-2 animate-pulse"></div>
-              <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-  }
 
   const pendingAssignments = assignments.filter(a => !getSubmission(a))
   const submittedAssignments = assignments.filter(a => getSubmission(a))
 
-  // Prepare chart data
   const gradeChartData = submittedAssignments
     .filter(a => {
-    const submission = getSubmission(a)
-    return submission && submission.grade !== null && submission.grade !== undefined
-  })
-  .map(a => {
-    const submission = getSubmission(a)!
-    return {
-      assignment: a.title.length > 15 ? a.title.substring(0, 15) + '...' : a.title,
-      grade: submission.grade!,
-      maxMarks: a.maxMarks,
-      percentage: (submission.grade! / a.maxMarks) * 100
-    }
-  })
-  .slice(0, 10) // Last 10 assignments
+      const submission = getSubmission(a)
+      return submission && submission.grade !== null && submission.grade !== undefined
+    })
+    .map(a => {
+      const submission = getSubmission(a)!
+      return {
+        assignment: a.title.length > 15 ? a.title.substring(0, 15) + '...' : a.title,
+        grade: submission.grade!,
+        maxMarks: a.maxMarks,
+        percentage: (submission.grade! / a.maxMarks) * 100
+      }
+    })
+    .slice(0, 10)
 
-const attendanceChartData = attendance.map(a => ({
-  date: a.date,
-  status: a.status as 'PRESENT' | 'ABSENT'
-}))
+  const attendanceChartData = attendance.map(a => ({
+    date: a.date,
+    status: a.status as 'PRESENT' | 'ABSENT'
+  }))
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Loading...</p>
+      </div>
+    )
+  }
 
   return (
-    <DashboardLayout requiredRole="STUDENT">
-    <div className="min-h-screen bg-gray-50">
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex gap-8">
-            <button
-              onClick={() => setActiveTab('assignments')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'assignments'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              📚 Assignments
-            </button>
-            <button
-              onClick={() => setActiveTab('attendance')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'attendance'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              📅 Attendance
-            </button>
-          </nav>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 lg:px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+              <p className="text-base text-slate-600 mt-1">Welcome back, {userName || 'Student'}</p>
+            </div>
+            <form action="/api/auth/signout" method="POST">
+              <Button variant="outline" type="submit" className="text-base">
+                Logout
+              </Button>
+            </form>
+          </div>
         </div>
+      </div>
 
-        {/* Assignments Tab */}
-        {activeTab === 'assignments' && (
-          <>
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        <Tabs defaultValue="assignments" className="space-y-6">
+          <TabsList className="flex w-full md:w-auto gap-2 p-1 bg-slate-100 rounded-lg">
+            <TabsTrigger value="assignments" className="flex-1 text-base py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md">📚 Assignments</TabsTrigger>
+            <TabsTrigger value="attendance" className="flex-1 text-base py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md">📅 Attendance</TabsTrigger>
+          </TabsList>
+
+          {/* Assignments Tab */}
+          <TabsContent value="assignments" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Total Assignments</h3>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{assignments.length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Pending</h3>
-                <p className="mt-2 text-3xl font-bold text-orange-600">{pendingAssignments.length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Submitted</h3>
-                <p className="mt-2 text-3xl font-bold text-green-600">{submittedAssignments.length}</p>
-              </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Total Assignments</CardTitle>
+                  <span className="text-2xl">📝</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{assignments.length}</div>
+                  <p className="text-sm text-muted-foreground">All time</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Pending</CardTitle>
+                  <span className="text-2xl">⏳</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-orange-600">{pendingAssignments.length}</div>
+                  <p className="text-sm text-muted-foreground">To submit</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Submitted</CardTitle>
+                  <span className="text-2xl">✅</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-600">{submittedAssignments.length}</div>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Pending Assignments */}
             {pendingAssignments.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Pending Assignments</h2>
-                <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Pending Assignments</CardTitle>
+                  <CardDescription className="text-base">Assignments awaiting your submission</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {pendingAssignments.map((assignment) => {
                     const overdue = isOverdue(assignment.dueDate)
                     return (
                       <div
                         key={assignment.id}
-                        className={`bg-white rounded-lg shadow p-6 ${overdue ? 'border-l-4 border-red-500' : ''}`}
+                        className={`p-5 border-2 rounded-lg ${overdue ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1 space-y-3">
                             <div className="flex items-center gap-3">
-                              <h3 className="text-lg font-semibold text-gray-900">
+                              <h3 className="text-lg font-semibold text-slate-900">
                                 {assignment.title}
                               </h3>
                               {overdue && (
-                                <span className="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded">
-                                  OVERDUE
-                                </span>
+                                <Badge variant="destructive" className="text-sm">OVERDUE</Badge>
                               )}
                             </div>
-                            <p className="mt-1 text-sm text-gray-600">
+                            <p className="text-base text-slate-600">
                               {assignment.description || 'No description'}
                             </p>
-                            <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
-                              <span>📚 {assignment.subject.name}</span>
-                              <span>👨‍🏫 {assignment.subject.teacher.user.name}</span>
-                              <span className={overdue ? 'text-red-600 font-semibold' : ''}>
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
+                              <Badge variant="secondary" className="text-sm">📚 {assignment.subject.name}</Badge>
+                              <Badge variant="outline" className="text-sm">👨‍🏫 {assignment.subject.teacher.user.name}</Badge>
+                              <span className={`text-sm ${overdue ? 'text-red-600 font-semibold' : 'text-slate-600'}`}>
                                 📅 Due: {new Date(assignment.dueDate).toLocaleString()}
                               </span>
-                              <span>💯 {assignment.maxMarks} marks</span>
+                              <span className="text-sm text-slate-600">💯 {assignment.maxMarks} marks</span>
                             </div>
                           </div>
-                          <button
+                          <Button
                             onClick={() => handleSubmit(assignment.id)}
                             disabled={submitting === assignment.id}
-                            className="ml-4 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            size="lg"
+                            className="text-base"
                           >
-                            {submitting === assignment.id ? 'Submitting...' : 'Submit Assignment'}
-                          </button>
+                            {submitting === assignment.id ? 'Submitting...' : 'Submit'}
+                          </Button>
                         </div>
                       </div>
                     )
                   })}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             )}
 
-            {/* Submitted Assignments */}
+            {/* Submitted Assignments Table */}
             {submittedAssignments.length > 0 && (
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Submitted Assignments</h2>
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Assignment
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Subject
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Submitted At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Grade
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Submitted Assignments</CardTitle>
+                  <CardDescription className="text-base">Your completed assignments and grades</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-base">Assignment</TableHead>
+                        <TableHead className="text-base">Subject</TableHead>
+                        <TableHead className="text-base">Submitted At</TableHead>
+                        <TableHead className="text-base">Grade</TableHead>
+                        <TableHead className="text-base">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {submittedAssignments.map((assignment) => {
                         const submission = getSubmission(assignment)
                         if (!submission) return null
                         
                         return (
-                          <tr key={assignment.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {assignment.title}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {assignment.subject.name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(submission.submittedAt).toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <TableRow key={assignment.id}>
+                            <TableCell className="font-medium text-base">{assignment.title}</TableCell>
+                            <TableCell className="text-base">{assignment.subject.name}</TableCell>
+                            <TableCell className="text-base">{new Date(submission.submittedAt).toLocaleString()}</TableCell>
+                            <TableCell className="text-base">
                               {submission.grade !== null && submission.grade !== undefined ? (
-                                <span className="font-semibold text-green-600">
+                                <span className="font-semibold text-green-600 text-base">
                                   {submission.grade} / {assignment.maxMarks}
                                 </span>
                               ) : (
-                                <span className="text-gray-400">Not graded</span>
+                                <span className="text-slate-400 text-base">Not graded</span>
                               )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            </TableCell>
+                            <TableCell>
                               {submission.grade !== null && submission.grade !== undefined ? (
-                                <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">
-                                  GRADED
-                                </span>
+                                <Badge className="text-sm">GRADED</Badge>
                               ) : (
-                                <span className="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded">
-                                  SUBMITTED
-                                </span>
+                                <Badge variant="secondary" className="text-sm">SUBMITTED</Badge>
                               )}
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         )
                       })}
-                    </tbody>
-                  </table>
-                </div>
-                {/* GRADE CHART */}
-                {gradeChartData.length > 0 && (
-                <div className="mb-8">
-                  <GradeChart data={gradeChartData} />
-                </div>
-              )}
-              </div>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Grade Chart */}
+            {gradeChartData.length > 0 && (
+              <GradeChart data={gradeChartData} />
             )}
 
             {/* Empty State */}
             {assignments.length === 0 && (
-              <div className="bg-white rounded-lg shadow p-12 text-center">
-                <p className="text-gray-500">No assignments yet. Check back later!</p>
-              </div>
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="text-6xl mb-4">📚</div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">No Assignments Yet</h3>
+                  <p className="text-base text-slate-600">Check back later for new assignments from your teachers</p>
+                </CardContent>
+              </Card>
             )}
-          </>
-        )}
+          </TabsContent>
 
-        {/* Attendance Tab */}
-        {activeTab === 'attendance' && (
-          <>
+          {/* Attendance Tab */}
+          <TabsContent value="attendance" className="space-y-6">
             {/* Attendance Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Attendance %</h3>
-                <p className={`mt-2 text-3xl font-bold ${
-                  parseFloat(attendancePercentage) >= 75 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {attendancePercentage}%
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Total Days</h3>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{totalDays}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Present</h3>
-                <p className="mt-2 text-3xl font-bold text-green-600">{presentDays}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500">Absent</h3>
-                <p className="mt-2 text-3xl font-bold text-red-600">{absentDays}</p>
-              </div>
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Attendance %</CardTitle>
+                  <span className="text-2xl">{parseFloat(attendancePercentage) >= 75 ? '✅' : '⚠️'}</span>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-3xl font-bold ${
+                    parseFloat(attendancePercentage) >= 75 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {attendancePercentage}%
+                  </div>
+                  <p className="text-sm text-muted-foreground">Overall</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Total Days</CardTitle>
+                  <span className="text-2xl">📅</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{totalDays}</div>
+                  <p className="text-sm text-muted-foreground">Recorded</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Present</CardTitle>
+                  <span className="text-2xl">✅</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-600">{presentDays}</div>
+                  <p className="text-sm text-muted-foreground">Days</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base font-medium">Absent</CardTitle>
+                  <span className="text-2xl">❌</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-red-600">{totalDays - presentDays}</div>
+                  <p className="text-sm text-muted-foreground">Days</p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Attendance Warning */}
             {parseFloat(attendancePercentage) < 75 && totalDays > 0 && (
-              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">⚠️</span>
-                  <div>
-                    <p className="font-semibold text-red-800">Low Attendance Warning</p>
-                    <p className="text-sm text-red-600">
-                      Your attendance is below 75%. Please maintain regular attendance.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <Card className="border-red-200 bg-red-50">
+                <CardHeader>
+                  <CardTitle className="text-red-800 text-xl flex items-center gap-2">
+                    <span>⚠️</span>
+                    Low Attendance Warning
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base text-red-700">
+                    Your attendance is below 75%. Please maintain regular attendance to meet academic requirements.
+                  </p>
+                </CardContent>
+              </Card>
             )}
-            {/* CALENDAR CHART */}
-            <div className="mb-8">
+
+            {/* Attendance Calendar */}
+            {attendanceChartData.length > 0 && (
               <AttendanceCalendar data={attendanceChartData} />
-            </div>
+            )}
 
-            {/* Attendance History */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Attendance</h2>
-              </div>
-
-              {attendance.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  No attendance records yet
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-200">
-                  {recentAttendance.map((record) => (
-                    <div key={record.id} className="p-4 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-3 h-3 rounded-full ${
-                            record.status === 'PRESENT' ? 'bg-green-500' : 'bg-red-500'
-                          }`} />
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {new Date(record.date).toLocaleDateString('en-US', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                              })}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              Marked by: {record.teacher.user.name}
-                            </p>
+            {/* Recent Attendance */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Recent Attendance</CardTitle>
+                <CardDescription className="text-base">Your attendance history</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {attendance.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-5xl mb-4">📅</div>
+                    <p className="text-lg text-muted-foreground">No attendance records yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {attendance.slice(0, 30).map((record) => (
+                      <div key={record.id} className="p-4 border rounded-lg hover:bg-slate-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-3 h-3 rounded-full ${
+                              record.status === 'PRESENT' ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                            <div>
+                              <p className="font-medium text-base text-slate-900">
+                                {new Date(record.date).toLocaleDateString('en-US', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </p>
+                              <p className="text-sm text-slate-500">
+                                Marked by: {record.teacher.user.name}
+                              </p>
+                            </div>
                           </div>
+                          <Badge variant={record.status === 'PRESENT' ? 'default' : 'destructive'} className="text-sm">
+                            {record.status}
+                          </Badge>
                         </div>
-                        <span className={`px-3 py-1 text-sm font-semibold rounded ${
-                          record.status === 'PRESENT'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {record.status}
-                        </span>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
-    </DashboardLayout>
   )
 }

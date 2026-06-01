@@ -112,7 +112,7 @@ export default function AssignmentSubmissionsPage() {
     )
   }
   const submittedCount = assignment.submissions?.length || 0
-const gradedCount = assignment.submissions?.filter(s => s.grade !== null).length || 0
+  const gradedCount = assignment.submissions?.filter(s => s.grade !== null).length || 0
 
 return (
   <div className="min-h-screen bg-gray-50">
