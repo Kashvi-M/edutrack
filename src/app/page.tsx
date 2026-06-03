@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Check, Shield, GraduationCap, Users, UserCheck, Settings2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -56,67 +57,71 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-zinc-50/50 text-zinc-900 antialiased selection:bg-zinc-200/60">
       {/* Header */}
-      <header className="border-b bg-white/90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-xl shadow-md">
+      <header className="border-b border-zinc-200 bg-white sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-md bg-zinc-900 flex items-center justify-center text-white font-semibold text-lg tracking-tight">
               E
             </div>
-            <span className="text-2xl font-bold text-slate-900">EduTrack</span>
+            <span className="text-xl font-semibold text-zinc-900 tracking-tight">EduTrack</span>
           </div>
-          <Badge variant="secondary" className="hidden sm:flex text-sm px-3 py-1">v1.0 Beta</Badge>
+          <Badge variant="secondary" className="font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/60 px-2.5 py-0.5 text-xs rounded-full">
+            v1.0 Beta
+          </Badge>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid lg:grid-cols-2 gap-16 items-center max-w-7xl mx-auto">
-          {/* Left Side - Hero Content */}
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-sm px-4 py-1.5">
-                Complete Education Management Solution
-              </Badge>
-              <h1 className="text-5xl md:text-6xl font-bold text-slate-900 leading-tight">
-                Manage Your School <span className="text-blue-600">Efficiently</span>
+      {/* Hero / Portal Entry Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Side - Context/Value proposition */}
+          <div className="lg:col-span-7 space-y-8 max-w-2xl">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-medium">
+                <Shield className="w-3.5 h-3.5 text-zinc-500" />
+                Institutional Management Platform
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.15]">
+                A unified core for school coordination and metrics.
               </h1>
-              <p className="text-xl text-slate-600 leading-relaxed">
-                A comprehensive platform designed to streamline school operations, manage student data, track attendance, handle assignments, and monitor academic performance - all in one place.
+              <p className="text-lg text-zinc-600 leading-relaxed max-w-xl">
+                Streamline academic administration, safely structure records, coordinate homework lifecycles, and access analytics—all under one clear environment.
               </p>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">4</div>
-                <div className="text-sm text-slate-600">User Roles</div>
+            {/* Micro-Metrics Grid */}
+            <div className="grid grid-cols-3 gap-4 max-w-md border-t border-zinc-200 pt-8">
+              <div>
+                <div className="text-2xl font-bold text-zinc-900 tracking-tight">4 Roles</div>
+                <div className="text-xs font-medium text-zinc-500 mt-0.5">Isolated Access Control</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">10+</div>
-                <div className="text-sm text-slate-600">Features</div>
+              <div>
+                <div className="text-2xl font-bold text-zinc-900 tracking-tight">10+ Tools</div>
+                <div className="text-xs font-medium text-zinc-500 mt-0.5">Modular Functionality</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">100%</div>
-                <div className="text-sm text-slate-600">Secure</div>
+              <div>
+                <div className="text-2xl font-bold text-zinc-900 tracking-tight">100%</div>
+                <div className="text-xs font-medium text-zinc-500 mt-0.5">Localized Encryption</div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Login Card */}
-          <div className="w-full max-w-md mx-auto">
-            <Card className="border-slate-200 shadow-xl">
-              <CardHeader className="space-y-2 pb-6">
-                <CardTitle className="text-3xl">Sign in</CardTitle>
-                <CardDescription className="text-base">
-                  Enter your credentials to access your account
+          {/* Right Side - Premium Login Card Frame */}
+          <div className="lg:col-span-5 w-full max-w-md mx-auto lg:ml-auto">
+            <Card className="border-zinc-200 bg-white shadow-sm ring-1 ring-zinc-200/50 rounded-xl">
+              <CardHeader className="space-y-1.5 pb-6">
+                <CardTitle className="text-2xl font-semibold tracking-tight text-zinc-900">Sign in</CardTitle>
+                <CardDescription className="text-sm text-zinc-500">
+                  Enter your credentials to access your administrative workspace.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base">Email</Label>
+                <form onSubmit={handleSubmit} className="space-y-4.5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-medium text-zinc-700">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
@@ -125,11 +130,11 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={loading}
-                      className="h-11 text-base"
+                      className="h-10 border-zinc-200 bg-zinc-50/30 focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:border-zinc-950 transition-all text-sm rounded-md"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-base">Password</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password" className="text-xs font-medium text-zinc-700">Password</Label>
                     <Input
                       id="password"
                       type="password"
@@ -138,197 +143,167 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={loading}
-                      className="h-11 text-base"
+                      className="h-10 border-zinc-200 bg-zinc-50/30 focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:border-zinc-950 transition-all text-sm rounded-md"
                     />
                   </div>
-                  <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign in'}
+                  <Button type="submit" className="w-full h-10 text-sm font-medium bg-zinc-900 hover:bg-zinc-800 text-white rounded-md shadow-sm transition-colors mt-2" disabled={loading}>
+                    {loading ? 'Verifying profile...' : 'Enter Workspace'}
                   </Button>
                 </form>
               </CardContent>
-              <CardFooter className="flex flex-col space-y-4 pt-2">
-                <Separator />
-                <div className="text-sm text-slate-600 space-y-2 w-full">
-                  <p className="font-semibold text-base">Demo Credentials:</p>
-                  <div className="grid gap-2 text-sm">
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                      <p className="font-medium text-slate-900">Admin Account</p>
-                      <p className="text-slate-600">admin@edutrack.com / admin123</p>
+              <CardFooter className="flex flex-col space-y-4 pt-2 pb-6">
+                <Separator className="bg-zinc-100" />
+                <div className="text-xs text-zinc-500 space-y-2.5 w-full">
+                  <span className="font-semibold text-zinc-700 block tracking-wide uppercase text-[10px]">Development Sandbox Access</span>
+                  <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-200/60 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-zinc-800 text-xs">Administrative Profile</p>
+                      <p className="text-[11px] font-mono text-zinc-500 mt-0.5">admin@edutrack.com / admin123</p>
                     </div>
+                    <Badge variant="outline" className="text-[10px] uppercase font-mono bg-white text-zinc-500 border-zinc-200 px-1.5">Demo</Badge>
                   </div>
                 </div>
               </CardFooter>
             </Card>
           </div>
         </div>
-      </section>
+      </main>
 
-      {/* Features Section */}
-      <section className="bg-white py-20 border-y">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">Powerful Features</h2>
-            <p className="text-xl text-slate-600">
-              Everything you need to manage your educational institution effectively
+      {/* Role Segmentation Section */}
+      <section className="bg-white border-y border-zinc-200/80 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center mb-16 space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Configured Workspaces</h2>
+            <p className="text-base text-zinc-500">
+              Tailored interfaces built to deliver essential workflows and zero data-noise for every role.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-            <Card className="border-slate-200 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-                  <span className="text-3xl">👨‍🏫</span>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
+              <div className="p-5 space-y-4">
+                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <UserCheck className="w-4 h-4" />
                 </div>
-                <CardTitle className="text-xl">For Teachers</CardTitle>
-                <CardDescription className="text-base">
-                  Create assignments, mark attendance, grade submissions, and track student progress efficiently.
-                </CardDescription>
-              </CardHeader>
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Teachers</CardTitle>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Build clean curriculum logs, track daily attendance grids, grade submissions, and view timeline logs.
+                  </p>
+                </div>
+              </div>
             </Card>
 
-            <Card className="border-slate-200 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-lg bg-green-100 flex items-center justify-center mb-4">
-                  <span className="text-3xl">🎓</span>
+            <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
+              <div className="p-5 space-y-4">
+                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <GraduationCap className="w-4 h-4" />
                 </div>
-                <CardTitle className="text-xl">For Students</CardTitle>
-                <CardDescription className="text-base">
-                  View assignments, submit work, check grades, and monitor attendance with real-time updates.
-                </CardDescription>
-              </CardHeader>
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Students</CardTitle>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Access transparent task queues, turn in homework modules, check performance rubrics, and view schedules.
+                  </p>
+                </div>
+              </div>
             </Card>
 
-            <Card className="border-slate-200 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-lg bg-purple-100 flex items-center justify-center mb-4">
-                  <span className="text-3xl">👨‍👩‍👧</span>
+            <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
+              <div className="p-5 space-y-4">
+                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <Users className="w-4 h-4" />
                 </div>
-                <CardTitle className="text-xl">For Parents</CardTitle>
-                <CardDescription className="text-base">
-                  Track your child's academic performance, attendance, and stay informed about their progress.
-                </CardDescription>
-              </CardHeader>
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Parents</CardTitle>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Review progress graphs safely, audit missing student files, and coordinate clear notification lines with instructors.
+                  </p>
+                </div>
+              </div>
             </Card>
 
-            <Card className="border-slate-200 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-14 h-14 rounded-lg bg-orange-100 flex items-center justify-center mb-4">
-                  <span className="text-3xl">⚙️</span>
+            <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
+              <div className="p-5 space-y-4">
+                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <Settings2 className="w-4 h-4" />
                 </div>
-                <CardTitle className="text-xl">For Admins</CardTitle>
-                <CardDescription className="text-base">
-                  Complete control over classes, teachers, students, subjects, and system-wide analytics.
-                </CardDescription>
-              </CardHeader>
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Admins</CardTitle>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Maintain global system tables, monitor structural server health metrics, add accounts, and inspect data.
+                  </p>
+                </div>
+              </div>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Key Features */}
-      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-slate-900 mb-4">Complete Feature Set</h2>
-              <p className="text-xl text-slate-600">All the tools you need in one platform</p>
+      {/* Feature Execution List */}
+      <section className="py-25 bg-zinc-50/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-16 space-y-2">
+              <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Functional Capabilities</h2>
+              <p className="text-base text-zinc-500">Every piece designed around fast, accessible information density.</p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Assignment Management</h3>
-                    <p className="text-base text-slate-600">Create, distribute, and grade assignments with deadline tracking and automated notifications.</p>
-                  </div>
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-10">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-5 h-5 rounded-md border border-zinc-300 bg-white flex items-center justify-center mt-0.5 shadow-xs">
+                  <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Attendance Tracking</h3>
-                    <p className="text-base text-slate-600">Quick attendance marking with detailed reports and percentage calculations.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Grade Management</h3>
-                    <p className="text-base text-slate-600">Comprehensive grading system with feedback and performance analytics.</p>
-                  </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-zinc-900">Task Architecture</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">Deploy structured assignments across classrooms with strict date boundary rules and clean submission logs.</p>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Performance Analytics</h3>
-                    <p className="text-base text-slate-600">Visual charts and graphs showing student performance trends over time.</p>
-                  </div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-5 h-5 rounded-md border border-zinc-300 bg-white flex items-center justify-center mt-0.5 shadow-xs">
+                  <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Role-Based Access</h3>
-                    <p className="text-base text-slate-600">Secure authentication with different permissions for admins, teachers, students, and parents.</p>
-                  </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-zinc-900">Attendance State Control</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">Log attendance parameters smoothly with integrated computation variables and cross-sectional logs.</p>
                 </div>
+              </div>
 
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl">
-                    ✓
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Real-time Updates</h3>
-                    <p className="text-base text-slate-600">Instant notifications and updates across all user dashboards.</p>
-                  </div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-5 h-5 rounded-md border border-zinc-300 bg-white flex items-center justify-center mt-0.5 shadow-xs">
+                  <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-zinc-900">Performance Metrics</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">Track metrics across assignments, structured via clean evaluation rubrics and intuitive score charts.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-5 h-5 rounded-md border border-zinc-300 bg-white flex items-center justify-center mt-0.5 shadow-xs">
+                  <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-zinc-900">Deterministic Permissions</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">Enforce strict data fences between distinct user types to keep sensitive administrative layers fully protected.</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-700">
-        <div className="container mx-auto px-4 lg:px-8 text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-4xl font-bold text-white">Ready to Get Started?</h2>
-            <p className="text-xl text-blue-100">
-              Join thousands of educational institutions using EduTrack to streamline their operations.
-            </p>
-            <Button size="lg" variant="secondary" className="text-base h-12 px-8">
-              Get Started Today
-            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8 bg-white">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+      <footer className="border-t border-zinc-200 bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+              <div className="h-6 w-6 rounded bg-zinc-900 flex items-center justify-center text-white font-semibold text-sm">
                 E
               </div>
-              <span className="text-lg font-bold text-slate-900">EduTrack</span>
+              <span className="text-sm font-semibold text-zinc-900 tracking-tight">EduTrack</span>
             </div>
-            <p className="text-base text-slate-600">© 2024 EduTrack. All rights reserved.</p>
+            <p className="text-xs text-zinc-400">© 2026 EduTrack. Built for calm, scalable school environments.</p>
           </div>
         </div>
       </footer>
