@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Check, Shield, GraduationCap, Users, UserCheck, Settings2 } from 'lucide-react'
+import { Check, Shield, GraduationCap, Users, UserCheck, Settings2, Mail, Phone, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -56,9 +56,19 @@ export default function LoginPage() {
     }
   }
 
+  // Smooth scroll handler
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+    const element = document.getElementById(id)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-50/50 text-zinc-900 antialiased selection:bg-zinc-200/60">
-      {/* Header */}
+    <div className="min-h-screen bg-zinc-50/50 text-zinc-900 antialiased selection:bg-zinc-200/60 scroll-smooth">
+      
+      {/* Header / Navbar */}
       <header className="border-b border-zinc-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -67,14 +77,41 @@ export default function LoginPage() {
             </div>
             <span className="text-xl font-semibold text-zinc-900 tracking-tight">EduTrack</span>
           </div>
-          <Badge variant="secondary" className="font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/60 px-2.5 py-0.5 text-xs rounded-full">
-            v1.0 Beta
-          </Badge>
+
+          {/* Navigation Links Corner */}
+          <div className="flex items-center gap-6">
+            <nav className="flex items-center gap-6">
+              <a 
+                href="#home" 
+                onClick={(e) => handleScroll(e, 'home')}
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
+              >
+                Home
+              </a>
+              <a 
+                href="#about" 
+                onClick={(e) => handleScroll(e, 'about')}
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
+              >
+                About Us
+              </a>
+              <a 
+                href="#contact" 
+                onClick={(e) => handleScroll(e, 'contact')}
+                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors cursor-pointer"
+              >
+                Contact Us
+              </a>
+            </nav>
+            <Badge variant="secondary" className="font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/60 px-2.5 py-0.5 text-xs rounded-full">
+              v1.0 Beta
+            </Badge>
+          </div>
         </div>
       </header>
 
-      {/* Hero / Portal Entry Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      {/* Hero / Portal Entry Section (Home Target) */}
+      <main id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Left Side - Context/Value proposition */}
@@ -169,12 +206,12 @@ export default function LoginPage() {
         </div>
       </main>
 
-      {/* Role Segmentation Section */}
-      <section className="bg-white border-y border-zinc-200/80 py-20">
+      {/* --- ABOUT US SECTION (Increased Font Sizes) --- */}
+      <section id="about" className="bg-white border-y border-zinc-200/80 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center mb-16 space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Configured Workspaces</h2>
-            <p className="text-base text-zinc-500">
+          <div className="max-w-2xl mx-auto text-center mb-16 space-y-3">
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-900">Configured Workspaces</h2>
+            <p className="text-lg text-zinc-500 leading-relaxed">
               Tailored interfaces built to deliver essential workflows and zero data-noise for every role.
             </p>
           </div>
@@ -182,12 +219,12 @@ export default function LoginPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
               <div className="p-5 space-y-4">
-                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
-                  <UserCheck className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <UserCheck className="w-5 h-5" />
                 </div>
-                <div className="space-y-1.5">
-                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Teachers</CardTitle>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                <div className="space-y-2">
+                  <CardTitle className="text-lg font-bold text-zinc-900 tracking-tight">For Teachers</CardTitle>
+                  <p className="text-sm text-zinc-600 leading-relaxed">
                     Build clean curriculum logs, track daily attendance grids, grade submissions, and view timeline logs.
                   </p>
                 </div>
@@ -196,12 +233,12 @@ export default function LoginPage() {
 
             <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
               <div className="p-5 space-y-4">
-                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
-                  <GraduationCap className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <GraduationCap className="w-5 h-5" />
                 </div>
-                <div className="space-y-1.5">
-                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Students</CardTitle>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                <div className="space-y-2">
+                  <CardTitle className="text-lg font-bold text-zinc-900 tracking-tight">For Students</CardTitle>
+                  <p className="text-sm text-zinc-600 leading-relaxed">
                     Access transparent task queues, turn in homework modules, check performance rubrics, and view schedules.
                   </p>
                 </div>
@@ -210,12 +247,12 @@ export default function LoginPage() {
 
             <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
               <div className="p-5 space-y-4">
-                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
-                  <Users className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <Users className="w-5 h-5" />
                 </div>
-                <div className="space-y-1.5">
-                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Parents</CardTitle>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                <div className="space-y-2">
+                  <CardTitle className="text-lg font-bold text-zinc-900 tracking-tight">For Parents</CardTitle>
+                  <p className="text-sm text-zinc-600 leading-relaxed">
                     Review progress graphs safely, audit missing student files, and coordinate clear notification lines with instructors.
                   </p>
                 </div>
@@ -224,12 +261,12 @@ export default function LoginPage() {
 
             <Card className="border-zinc-200 bg-white shadow-none rounded-xl p-1.5">
               <div className="p-5 space-y-4">
-                <div className="w-8 h-8 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
-                  <Settings2 className="w-4 h-4" />
+                <div className="w-10 h-10 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-700">
+                  <Settings2 className="w-5 h-5" />
                 </div>
-                <div className="space-y-1.5">
-                  <CardTitle className="text-base font-semibold text-zinc-900 tracking-tight">For Admins</CardTitle>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                <div className="space-y-2">
+                  <CardTitle className="text-lg font-bold text-zinc-900 tracking-tight">For Admins</CardTitle>
+                  <p className="text-sm text-zinc-600 leading-relaxed">
                     Maintain global system tables, monitor structural server health metrics, add accounts, and inspect data.
                   </p>
                 </div>
@@ -240,11 +277,11 @@ export default function LoginPage() {
       </section>
 
       {/* Feature Execution List */}
-      <section className="py-25 bg-zinc-50/30">
+      <section className="py-20 bg-zinc-50/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-16 space-y-2">
-              <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Functional Capabilities</h2>
+              <h2 className="text-4xl font-bold tracking-tight text-zinc-900">Functional Capabilities</h2>
               <p className="text-base text-zinc-500">Every piece designed around fast, accessible information density.</p>
             </div>
 
@@ -254,8 +291,8 @@ export default function LoginPage() {
                   <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-zinc-900">Task Architecture</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">Deploy structured assignments across classrooms with strict date boundary rules and clean submission logs.</p>
+                  <h3 className="text-lg font-bold text-zinc-900">Task Architecture</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">Deploy structured assignments across classrooms with strict date boundary rules and clean submission logs.</p>
                 </div>
               </div>
 
@@ -264,8 +301,8 @@ export default function LoginPage() {
                   <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-zinc-900">Attendance State Control</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">Log attendance parameters smoothly with integrated computation variables and cross-sectional logs.</p>
+                  <h3 className="text-lg font-bold text-zinc-900">Attendance State Control</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">Log attendance parameters smoothly with integrated computation variables and cross-sectional logs.</p>
                 </div>
               </div>
 
@@ -274,8 +311,8 @@ export default function LoginPage() {
                   <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-zinc-900">Performance Metrics</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">Track metrics across assignments, structured via clean evaluation rubrics and intuitive score charts.</p>
+                  <h3 className="text-lg font-bold text-zinc-900">Performance Metrics</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">Track metrics across assignments, structured via clean evaluation rubrics and intuitive score charts.</p>
                 </div>
               </div>
 
@@ -284,9 +321,47 @@ export default function LoginPage() {
                   <Check className="w-3 h-3 text-zinc-800" strokeWidth={3} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-zinc-900">Deterministic Permissions</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">Enforce strict data fences between distinct user types to keep sensitive administrative layers fully protected.</p>
+                  <h3 className="text-lg font-bold text-zinc-900">Deterministic Permissions</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">Enforce strict data fences between distinct user types to keep sensitive administrative layers fully protected.</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- CONTACT US SECTION (Increased Font Sizes) --- */}
+      <section id="contact" className="bg-white border-t border-zinc-200/80 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto space-y-10">
+            <div className="text-center space-y-3">
+              <h2 className="text-4xl font-bold tracking-tight text-zinc-900">Contact Infrastructure Support</h2>
+              <p className="text-lg text-zinc-500 leading-relaxed">Reach out to your deployment team for technical queries or account issues.</p>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-6 text-center">
+              <div className="p-6 bg-zinc-50 border border-zinc-200/60 rounded-xl flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <span className="text-base font-bold text-zinc-900">Email Helpdesk</span>
+                <span className="text-sm font-mono text-zinc-600 font-semibold">support@edutrack.com</span>
+              </div>
+
+              <div className="p-6 bg-zinc-50 border border-zinc-200/60 rounded-xl flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <span className="text-base font-bold text-zinc-900">System Ops Hot-Line</span>
+                <span className="text-sm font-mono text-zinc-600 font-semibold">+1 (555) 019-2834</span>
+              </div>
+
+              <div className="p-6 bg-zinc-50 border border-zinc-200/60 rounded-xl flex flex-col items-center space-y-3">
+                <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-700">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <span className="text-base font-bold text-zinc-900">Main Server Lab</span>
+                <span className="text-sm text-zinc-600 font-semibold">Bldg 4, Academic District</span>
               </div>
             </div>
           </div>

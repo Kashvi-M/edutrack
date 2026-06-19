@@ -105,7 +105,7 @@ export default function TeachersPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-white border-r border-zinc-200 text-white rounded-md hover:bg-blue-700"
           >
             {showForm ? 'Cancel' : '+ Add Teacher'}
           </button>

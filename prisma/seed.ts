@@ -4,23 +4,41 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@edutrack.com' },
-    update: {},
-    create: {
-      email: 'admin@edutrack.com',
-      password: hashedPassword,
-      name: 'Admin User',
-      role: 'ADMIN',
-    },
-  })
+  try {
+    console.log('🌱 Starting database seed...')
 
-  console.log('✅ Admin user created:', admin.email)
-  console.log('📧 Email: admin@edutrack.com')
-  console.log('🔑 Password: admin123')
+    // Check if admin already exists
+    const existingAdmin = await prisma.user.findUnique({
+      where: { email: 'admin@edutrack.com' }
+    })
+
+    if (existingAdmin) {
+      console.log('✅ Admin user already exists')
+      return
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash('admin123', 10)
+
+    // Create admin user
+    const admin = await prisma.user.create({
+      data: {
+        name: 'Admin User',
+        email: 'admin@edutrack.com',
+        password: hashedPassword,
+        role: 'ADMIN'
+      }
+    })
+
+    console.log('✅ Admin user created successfully!')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('📧 Email: admin@edutrack.com')
+    console.log('🔐 Password: admin123')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+  } catch (error) {
+    console.error('❌ Seed failed:', error)
+    throw error
+  }
 }
 
 main()

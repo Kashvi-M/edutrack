@@ -1,8 +1,8 @@
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
@@ -12,7 +12,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { 
+  LayoutDashboard, 
+  BookOpen, 
+  UserCheck, 
+  GraduationCap, 
+  Users, 
+  FolderMinus, 
+  Calendar, 
+  LogOut 
+} from 'lucide-react'
+
+// Explicit map converting original emoji values into sharp Lucide components
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  '🏠': LayoutDashboard,
+  '🏫': BookOpen,
+  '👨‍🏫': UserCheck,
+  '🎓': GraduationCap,
+  '👨‍👩‍👧': Users,
+  '📚': FolderMinus,
+  '📅': Calendar,
+}
 
 type NavItem = {
   name: string
@@ -53,91 +73,100 @@ export default function Navbar({ role, userName }: Props) {
   const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
   return (
-    <nav className="border-b bg-white sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-8">
-            <Link href={`/${role.toLowerCase()}`} className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-                E
-              </div>
-              <span className="text-xl font-bold text-slate-900 hidden sm:inline">EduTrack</span>
-            </Link>
-
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-1">
-              {items.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link key={item.href} href={item.href}>
-                    <Button 
-                      variant={isActive ? "secondary" : "ghost"} 
-                      size="sm"
-                      className={`text-base font-medium ${isActive ? "bg-slate-100" : ""}`}
-                    >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.name}
-                    </Button>
-                  </Link>
-                )
-              })}
+    <header className="border-b border-zinc-200 bg-white sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        {/* Left Side: Brand Logo and Desktop Nav */}
+        <div className="flex items-center gap-6">
+          <Link href={`/${role.toLowerCase()}`} className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded bg-zinc-900 flex items-center justify-center text-white font-bold text-base">
+              E
             </div>
-          </div>
+            <span className="text-lg font-bold text-zinc-900 tracking-tight">EduTrack</span>
+          </Link>
+          
+          {/* Desktop Navigation Links */}
+          <nav className="hidden xl:flex items-center gap-1">
+            {items.map((item) => {
+              const IconComponent = iconMap[item.icon] || LayoutDashboard
+              const isActive = pathname === item.href
 
-          {/* User Menu */}
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="hidden sm:flex">{role}</Badge>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-600 text-white">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{role}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <form action="/api/auth/signout" method="POST">
-                  <DropdownMenuItem asChild>
-                    <button type="submit" className="w-full cursor-pointer">
-                      Logout
-                    </button>
-                  </DropdownMenuItem>
-                </form>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Mobile Nav */}
-        <div className="md:hidden pb-3 space-y-1">
-          {items.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href}>
-                <Button 
-                  variant={isActive ? "secondary" : "ghost"} 
-                  size="sm"
-                  className="w-full justify-start text-base font-medium"
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${
+                    isActive 
+                      ? 'bg-zinc-100 text-zinc-900 font-semibold' 
+                      : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
                 >
-                  <span className="mr-2">{item.icon}</span>
+                  <IconComponent className="w-4 h-4" />
                   {item.name}
-                </Button>
-              </Link>
-            )
-          })}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+        
+        {/* Right Side: Identity Badge & Account Dropdown */}
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-xs font-mono uppercase bg-zinc-50 border-zinc-200 text-zinc-700 px-2 py-0.5">
+            {role}
+          </Badge>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-hidden">
+              <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-xs text-white cursor-pointer hover:bg-zinc-800 transition-colors">
+                {initials}
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 mt-1 border-zinc-200 shadow-sm rounded-md bg-white">
+              <DropdownMenuLabel className="text-zinc-900 font-bold text-xs px-2 py-1.5 flex flex-col space-y-0.5">
+                <span className="truncate">{userName}</span>
+                <span className="text-[10px] font-mono uppercase text-zinc-400 font-medium">{role}</span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-zinc-100" />
+              
+              {/* Form implementation for native redirection validation handling */}
+              <form action="/api/auth/signout" method="POST" className="w-full">
+                <DropdownMenuItem asChild>
+                  <button 
+                    type="submit" 
+                    className="w-full flex items-center gap-2 px-2 py-2 text-rose-600 focus:text-rose-700 focus:bg-rose-50 font-semibold text-xs rounded-sm cursor-pointer transition-colors border-none bg-transparent text-left"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    Sign Out
+                  </button>
+                </DropdownMenuItem>
+              </form>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-    </nav>
+
+      {/* Mobile / Tablet Dropdown Link Drawer */}
+      <div className="xl:hidden border-t border-zinc-100 bg-zinc-50/50 px-4 py-2 space-y-1">
+        {items.map((item) => {
+          const IconComponent = iconMap[item.icon] || LayoutDashboard
+          const isActive = pathname === item.href
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isActive 
+                  ? 'bg-zinc-100 text-zinc-900 font-semibold' 
+                  : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              <IconComponent className="w-4 h-4" />
+              {item.name}
+            </Link>
+          )
+        })}
+      </div>
+    </header>
   )
 }

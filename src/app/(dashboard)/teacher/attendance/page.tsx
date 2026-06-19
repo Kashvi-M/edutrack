@@ -240,7 +240,7 @@ export default function TeacherAttendancePage() {
                 className={`w-full px-6 py-2 rounded-md font-semibold transition-all ${
                   showSuccess
                     ? 'bg-green-600 text-white'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-white border-r border-zinc-200 text-white hover:bg-blue-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {saving ? (

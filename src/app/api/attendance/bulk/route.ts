@@ -4,10 +4,14 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { AttendanceStatus } from '@prisma/client'
 
+function getUTCDate(dateInput: string) {
+  const d = new Date(dateInput);
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    
     if (!session || session.user.role !== 'TEACHER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -15,24 +19,19 @@ export async function POST(request: Request) {
     const teacher = await prisma.teacher.findUnique({
       where: { userId: session.user.id }
     })
-
     if (!teacher) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
     const body = await request.json()
     const { attendanceRecords, date } = body
-    // attendanceRecords format: [{ studentId: 'id1', status: 'PRESENT' }, ...]
 
-    const attendanceDate = new Date(date)
+    const attendanceDate = getUTCDate(date) // Normalized to UTC Midnight
 
-    // Process each record
     const results = await Promise.all(
       attendanceRecords.map(async (record: { studentId: string; status: string }) => {
-        // Cast status to proper type
         const attendanceStatus = record.status as AttendanceStatus
         
-        // Check if already exists
         const existing = await prisma.attendance.findUnique({
           where: {
             studentId_date: {
@@ -43,13 +42,11 @@ export async function POST(request: Request) {
         })
 
         if (existing) {
-          // Update
           return prisma.attendance.update({
             where: { id: existing.id },
             data: { status: attendanceStatus }
           })
         } else {
-          // Create
           return prisma.attendance.create({
             data: {
               studentId: record.studentId,

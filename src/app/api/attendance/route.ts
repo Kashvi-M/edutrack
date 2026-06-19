@@ -1,10 +1,17 @@
+// C:\Users\smahe\Downloads\edutrack\src\app\api\attendance\route.ts
+
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { AttendanceStatus } from '@prisma/client'
 
-// GET attendance records
+// Helper function to create a clean UTC Date object (Midnight UTC)
+function getUTCDate(dateInput: string) {
+  const d = new Date(dateInput);
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+}
+
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -20,7 +27,6 @@ export async function GET(request: Request) {
     let whereClause: any = {}
 
     if (session.user.role === 'STUDENT') {
-      // Student sees only their attendance
       const student = await prisma.student.findUnique({
         where: { userId: session.user.id }
       })
@@ -29,15 +35,14 @@ export async function GET(request: Request) {
       }
       whereClause.studentId = student.id
     } else if (studentId) {
-      // Teacher/Admin can filter by student
       whereClause.studentId = studentId
     }
 
     if (date) {
-      const startOfDay = new Date(date)
-      startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(date)
-      endOfDay.setHours(23, 59, 59, 999)
+      // Create a clean boundaries matching how dates are saved
+      const targetDate = getUTCDate(date)
+      const startOfDay = new Date(targetDate.setUTCHours(0, 0, 0, 0))
+      const endOfDay = new Date(targetDate.setUTCHours(23, 59, 59, 999))
       
       whereClause.date = {
         gte: startOfDay,
@@ -49,15 +54,10 @@ export async function GET(request: Request) {
       where: whereClause,
       include: {
         student: {
-          include: {
-            user: true,
-            class: true
-          }
+          include: { user: true, class: true }
         },
         teacher: {
-          include: {
-            user: true
-          }
+          include: { user: true }
         }
       },
       orderBy: { date: 'desc' }
@@ -70,7 +70,6 @@ export async function GET(request: Request) {
   }
 }
 
-// POST mark attendance (Teacher only)
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -90,51 +89,40 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { studentId, date, status } = body
 
-    // Cast to proper type
     const attendanceStatus = status as AttendanceStatus
+    const attendanceDate = getUTCDate(date) // Use clean normalized UTC Date
 
-    // Check if attendance already marked for this student on this date
     const existingAttendance = await prisma.attendance.findUnique({
       where: {
         studentId_date: {
           studentId,
-          date: new Date(date)
+          date: attendanceDate
         }
       }
     })
 
     if (existingAttendance) {
-  // Update existing record
-  const updated = await prisma.attendance.update({
-    where: { id: existingAttendance.id },
-    data: { status: attendanceStatus },  // Changed from 'status'
-    include: {
-      student: {
+      const updated = await prisma.attendance.update({
+        where: { id: existingAttendance.id },
+        data: { status: attendanceStatus },
         include: {
-          user: true
+          student: { include: { user: true } }
         }
-      }
+      })
+      return NextResponse.json(updated)
     }
-  })
-  return NextResponse.json(updated)
-}
 
-// Create new attendance record
-const attendance = await prisma.attendance.create({
-  data: {
-    studentId,
-    date: new Date(date),
-    status: attendanceStatus,  // Changed from 'status'
-    markedBy: teacher.id
-  },
-  include: {
-    student: {
+    const attendance = await prisma.attendance.create({
+      data: {
+        studentId,
+        date: attendanceDate,
+        status: attendanceStatus,
+        markedBy: teacher.id
+      },
       include: {
-        user: true
+        student: { include: { user: true } }
       }
-    }
-  }
-})
+    })
 
     return NextResponse.json(attendance, { status: 201 })
   } catch (error) {
